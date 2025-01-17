@@ -1,0 +1,22 @@
+
+module RASTROSCAIDOS 
+{
+    imports
+    {
+        Base
+    }
+
+    item SpecialNote 
+    {
+        DisplayCategory = Literature,
+        Weight = 0.1,
+        Type    =   Literature,
+        DisplayName = Rastros N.,
+        Icon = Paper,
+        CanBeWrite  =   true,
+        PageToWrite =   1,        
+        StaticModel = SheetOfPaper,
+        WorldStaticModel = SheetOfPaper,
+        Tooltip = Algo está escrito en esta nota...,
+    }
+}

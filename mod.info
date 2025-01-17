@@ -1,0 +1,5 @@
+name=El rastro de los caídos
+id=RASTROSCAIDOS
+poster=poster.png
+description=Un mod simple donde un objeto aparece en el mundo y muestra un mensaje al recogerlo.
+
