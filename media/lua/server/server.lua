@@ -6,8 +6,9 @@
  ███████║   ██║   ██║  ██╗██║  ██║██║     ██║╚██████╗██║  ██║██║  ██╗╚██████╔╝███████║
  ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝ 
  
- Script by : Strapicarus
- Version   : 0.1.6
+ File    : server.lua
+ Author  : Strapicarus
+ Version : 0.1.6
 
 --]]
 
@@ -29,14 +30,7 @@ local function getModData()
         rastrosData.nota3_spwnd = false
         rastrosData.nota4_spwnd = false
         rastrosData.HasCustomSpawn = false
-        rastrosData.nota1_tittle = "Rastros N. 1"
-        rastrosData.nota2_tittle = "Rastros N. 2"
-        rastrosData.nota3_tittle = "Rastros N. 3"
-        rastrosData.nota4_tittle = "Rastros N. 4"
-        rastrosData.nota1_text = "Al principio eran pocos... ahora son muchos. intentaremos llegar a la estación de policia."
-        rastrosData.nota2_text = "Mike esta herido, encontramos una almadena pero no podemos llevarla...\nNo se si llegaremos a la estación de policia, es peor de lo que esperaba..."
-        rastrosData.nota3_text = "Mike McPato a caido, no logramos abrir la puerta, todo es un caos... El agente está herido, dice que montarán algo en 'Rivers Sweets'"
-        rastrosData.nota4_text = "Al principio eran pocos... ahora son muchos. Nos reunimos con otras personas y no logramos juntar muchos viveres pero no podemos llevar todo..."
+
         return rastrosData
     else
         rastrosData = ModData.get("datosRastros")
@@ -126,13 +120,23 @@ local function info()
     print("Mod Loaded: " .. rastrosData.MOD_NAME .. " By " .. rastrosData.MOD_AUTHOR .. " (v." .. rastrosData.MOD_VERSION .. ")") 
 end
 
-local function onCreatePlayer()
-    local spawnX, spawnY, spawnZ = 4171, 7840, 0
-    local p = getPlayer()
-    print("player creation")
-    p:setPosition(spawnX, spawnY, 0)
-    p:Say("¡Estoy Vivo!")
-end
+-- local function onCreatePlayer()
+--     -- local spawnX, spawnY, spawnZ = 4171, 7840, 0
+--     -- local p = getPlayer()
+--     -- print("player creation")
+--     -- p:setPosition(spawnX, spawnY, 0)
+--     print("server ----- onCreatePlayer")
+--     local p = getPlayer()
+--     local gen = p:isFemale() and "_F" or "_M"
+--     local txKey = "IGUI_RASTROSCAIDOS_ALIVE" .. gen
+--     local tx = getText(txKey)
+--     print(tx)
+--     if tx and tx ~= "" then
+--         p:Say(tx)
+--     else
+--         print("Error: Traducción no encontrada para la clave: " .. txKey)
+--     end
+-- end
 
 local function serverStats()
     local players = getOnlinePlayers()
@@ -151,7 +155,7 @@ end
 
 --Events.OnServerStart.Add(onServerStart)
 Events.OnGameStart.Add(info)
-Events.OnGameStart.Add(onCreatePlayer)
+-- Events.OnGameStart.Add(onCreatePlayer)
 Events.LoadGridsquare.Add(onLoadGridSquare)
 Events.OnConnected.Add(serverStats)
 Events.OnDisconnect.Add(serverStats)
