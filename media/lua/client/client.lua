@@ -7,7 +7,7 @@
  ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝ 
  
  File    : client.lua
- Version : 0.2.59
+ Version : 0.2.69
 --]]
 
 local RastrosCaidosMod = RastrosCaidosMod or {}
