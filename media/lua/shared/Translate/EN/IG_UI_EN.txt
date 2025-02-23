@@ -728,5 +728,44 @@ IG_UI_EN = {
     IGUI_RASTROSCAIDOS_RASTRO_9_F = "What an emotional message! The fallen left a trail that speaks of fate.",  
     IGUI_RASTROSCAIDOS_RASTRO_10_F = "This discovery is like a whisper from the past; the perfect clue for my journey.", 
 
+    --
+    IGUI_RASTROSCAIDOS_TITLE_1 = "From the Park Ranger",
+    IGUI_RASTROSCAIDOS_BODY_1 = "For those who stayed behind, we received information about an emergency evacuation in town! And Carla is injured, so we have to leave. We're heading to the camping store west of Doe Valley to get more information. Good luck and be very careful.",
+
+    IGUI_RASTROSCAIDOS_TITLE_2 = "From the Park Ranger",
+    IGUI_RASTROSCAIDOS_BODY_2 = "This is worse than I imagined! I asked Jack, the guy from the gun store next door, to give me the key, but we were surrounded by zombies, and he threw the key from his truck onto the avenue heading north toward Riverside. I'm heading east to Doe Valley, where my family is and where there's a military surplus store—there must be some connection to the military...",
+
+    IGUI_RASTROSCAIDOS_TITLE_3 = "From Jack",
+    IGUI_RASTROSCAIDOS_BODY_3 = "I never thought this would happen... My arms supplier was late with the shipment, and suddenly I have to survive a zombie apocalypse... My sister is at the farm west of Riverside, I have to find her.",
+
+    IGUI_RASTROSCAIDOS_TITLE_4 = "From the Park Ranger",
+    IGUI_RASTROSCAIDOS_BODY_4 = "I arrived too late. I couldn't get into the military surplus store, everyone left for the barracks. I heard on the radio that the evacuation is canceled and we are in quarantine. But I still think we have a chance if we manage to escape (we are surrounded) and head northeast past the agricultural zone. I know there's a small army outpost there—maybe they're still evacuating soldiers.",
+
+    IGUI_RASTROSCAIDOS_TITLE_5 = "From the Reserve Major",
+    IGUI_RASTROSCAIDOS_BODY_5 = "Jimmy, if you're late for work again, I suggest you put down the alcohol and pack up. They're calling everyone to the barracks northeast past the agricultural zone—I don't know what's going on...",
+
+    IGUI_RASTROSCAIDOS_TITLE_6 = "From Jack's Sister",
+    IGUI_RASTROSCAIDOS_BODY_6 = "Jacky, I can't reach you. My husband called and told me to pack food and water, to head to the police station, that I would be safer there, and then the call got cut off. Love you, Paty.",
+
+    IGUI_RASTROSCAIDOS_TITLE_7 = "From the Brigadier General",
+    IGUI_RASTROSCAIDOS_BODY_7 = "The cancellation of new civilian evacuation operations in Doe Valley, Rosewood, March Ridge, and Riverside is ordered. Troops and civilians are to retreat to the train station east of Muldraugh. The transport will depart at 0700 Zulu. Hold position until the train arrives and await new orders at 0800 Zulu.",
+
+    IGUI_RASTROSCAIDOS_TITLE_8 = "From the Police Commander",
+    IGUI_RASTROSCAIDOS_BODY_8 = "The disease is spreading rapidly. The army has ordered garrisoning, and troops from the barracks northeast of Doe Valley’s agricultural zone will arrive soon.",
+
+    IGUI_RASTROSCAIDOS_TITLE_9 = "From the Police Commander",
+    IGUI_RASTROSCAIDOS_BODY_9 = "Our city is the epicenter of the evacuation—we must coordinate efforts with the army. The train station is our Dunkirk.",
+
+    IGUI_RASTROSCAIDOS_TITLE_10 = "General's Orders",
+    IGUI_RASTROSCAIDOS_BODY_10 = "Keep the evacuation center secure at all costs!!",
+
+    IGUI_RASTROSCAIDOS_TITLE_11 = "From the Brigadier General",
+    IGUI_RASTROSCAIDOS_BODY_11 = "All our efforts are now focused on the refugee area outside Louisville. The last train will depart at 0900 Zulu if the flow of civilians remains steady… Louisville's general command expects us to keep the city free of infection. Command provides no information on a Louisville evacuation, but I know they have one planned for the high command...",
+
+    IGUI_RASTROSCAIDOS_TITLE_12 = "From the General Command",
+    IGUI_RASTROSCAIDOS_BODY_12 = "Papa Charlie Charlie Sierra 12 138, high command evacuation is authorized. Extraction zone Niagara 50 Sierra 11 at coordinates 1° 50' 00'' East, 3° 4' 50'' North.",
+
+    IGUI_RASTROSCAIDOS_TITLE_13 = "From the Developer",
+    IGUI_RASTROSCAIDOS_BODY_13 = "Congratulations!!! You've reached the extraction point, but unfortunately, everyone is dead, and there is no hope for another extraction. Thank you for playing, and I hope you had a great time... Type in the chat: PCCS3731",
 
 }

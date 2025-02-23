@@ -212,10 +212,7 @@ RastrosCaidosMod.getTxtRandom = function(len, key)
 end
 
 RastrosCaidosMod.getTxtRange = function(len, key, ifirst, ilast)
-local sel = 1
-    for i=1,3 do
-        sel = ZombRand(ifirst, ilast)
-    end
+    local sel = ZombRand(ifirst, ilast)
     local txKey = key .. sel .. gen
     local tx = getText(txKey)
     if tx and tx ~= "" then
@@ -379,7 +376,7 @@ local playerGetDamaged = function(character, damageType, damage)
     local currentTime = getGameTime():getWorldAgeHours()
     local ti = currentTime - dmgLastCheck
 
-    if ti < 0.05 then
+    if ti < 0.03 then
         return
     end
 
@@ -399,36 +396,37 @@ local playerGetDamaged = function(character, damageType, damage)
         local bodyParts = bodyDamage:getBodyParts()
         for i = 0, bodyParts:size() - 1 do
             local t = currentTime - damageInfo.timer
-            if t > 0.5 then
-                local bodyPart = bodyParts:get(i)
-                local bn = bodyPart:getType()
-                local bodyPartName = RastrosCaidosMod.normalizeBodyPart(bn)
-                if bodyPart:bleeding() and not bodyPart:IsBleedingStemmed() then
-                    local bodyPartDamage = ""
-                    if bodyPart:scratched() then
-                        bodyPartDamage = "scratched_"
-                    elseif bodyPart:isCut() then
-                        bodyPartDamage = "isCut_"
-                    elseif bodyPart:bitten() then
-                        bodyPartDamage = "bitten_"
-                    elseif bodyPart:isDeepWounded() then
-                        bodyPartDamage = "isDeepWounded_"
-                    -- elseif bodyPart:haveGlass() then
-                    --     bodyPartDamage = "haveGlass_"
-                    -- -haveGlass
-                    -- -haveBullet
-                    -- -hasInjury
-                    -- -isBurnt
-                    -- -isNeedBurnWash
-                    end
-                    local key = damageInfo.key .. bodyPartDamage .. bodyPartName
-                    local tx = RastrosCaidosMod.getTxtRandom(damageInfo.len, key)
-                    character:Say(tx)
-                    damageInfo.timer = currentTime
-                    timerLastSay = currentTime
+            local bodyPart = bodyParts:get(i)
+            local bn = bodyPart:getType()
+            local bodyPartName = RastrosCaidosMod.normalizeBodyPart(bn)
+            if bodyPart:bleeding() and not bodyPart:IsBleedingStemmed() then
+                local bodyPartDamage = ""
+                if bodyPart:scratched() then
+                    bodyPartDamage = "scratched_"
+                elseif bodyPart:isCut() then
+                    bodyPartDamage = "isCut_"
+                elseif bodyPart:bitten() then
+                    bodyPartDamage = "bitten_"
+                elseif bodyPart:isDeepWounded() then
+                    bodyPartDamage = "isDeepWounded_"
+                -- elseif bodyPart:haveGlass() then
+                --     bodyPartDamage = "haveGlass_"
+                -- -haveGlass
+                -- -haveBullet
+                -- -hasInjury
+                -- -isBurnt
+                -- -isNeedBurnWash
                 end
-            end
-            
+                local key = damageInfo.key .. bodyPartDamage .. bodyPartName
+                local tx = RastrosCaidosMod.getTxtRandom(damageInfo.len, key)
+                if playerPanicLvl > 30 then
+                    character:SayShout(tx)
+                else
+                    character:Say(tx)
+                end
+                damageInfo.timer = currentTime
+                timerLastSay = currentTime
+            end            
         end
     end
 end

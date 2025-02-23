@@ -7,13 +7,18 @@
  ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝ 
  
  File    : server.lua
- Version : 0.2.48
+ Version : 0.2.69
 
 --]]
-Rastros = Rastros or {}
+local Rastros = Rastros or {}
 Rastros.maleOutfits = getAllOutfits(false);
 Rastros.femaleOutfits = getAllOutfits(true);
-Rastros.Data = Rastros.Data  or {}
+RastrosModData = RastrosModData or {}
+Rastros.tittle = "Rastro N. "
+Rastros.transTitleKey = "IGUI_RASTROSCAIDOS_TITLE_"
+Rastros.transBodyKey = "IGUI_RASTROSCAIDOS_BODY_"
+local indexedCoords = false
+local spawnIndex = {}
 
 Rastros.cars = {
     firstResponder = {
@@ -248,7 +253,6 @@ Rastros.item = {
     },
     water = {
         "Base.WaterBottle",
-        "Base.Sportsbottle",
         "Base.PopBottle",
         "Base.JuiceBox"
     },
@@ -338,94 +342,220 @@ Rastros.fireArm = {
     }
 }
 
-local getModData = function()
+Rastros.getModData = function()
     if not ModData.exists("datosRastros") then
-        Rastros.Data = ModData.create("datosRastros")
-        Rastros.Data.deathCount = 0
+        RastrosModData = ModData.create("datosRastros")
 
         -- deerhead lake 
-        Rastros.Data.deerhead = {
+        RastrosModData.deerhead = {
             indx = 1,
             note = { spawned = false, x = 4675, y = 8608 },
-            veh1 = { spawned = false, x = 4657, y = 8616 },
-            veh2 = { spawned = false, x = 4664, y = 8620 },
-            veh3 = { spawned = false, x = 4671, y = 8623 },
-            item1 = { spawned = false, x = 4672, y = 8612 },
-            zomb1 = { spawned = false, x = 4670, y = 8636 }
+            veh1 = { spawned = false, x = 4657, y = 8616, type = "firstResponder", key = false, repair = true },
+            veh2 = { spawned = false, x = 4664, y = 8620, type = "firstResponder", key = false, repair = true },
+            veh3 = { spawned = false, x = 4671, y = 8623, type = "firstResponder", key = false, repair = true },
+            item1 = { spawned = false, x = 4672, y = 8612, type = {Rastros.item.tool, Rastros.fireArm.oneHanded}, quantity = 3, inbag = true, bags = 3, separate = false },
+            zomb1 = { spawned = false, x = 4670, y = 8636, type = "firstResponder", quantity = 6 }
         }
         
         -- camping shop West park
-        Rastros.Data.campingwest = {
+        RastrosModData.campingwest = {
             indx = 2,
             note = { spawned = false, x = 3801, y = 8546 },
-            veh1 = { spawned = false, x = 3788, y = 8563 },
-            veh2 = { spawned = false, x = 3787, y = 8574 },
-            veh3 = { spawned = false, x = 3773, y = 8574 },
-            item1 = { spawned = false, x = 3808, y = 8555 },
-            zomb1 = { spawned = false, x = 3790, y = 8540 }
+            veh1 = { spawned = false, x = 3788, y = 8563, type = "firstResponder", key= true, repair = false },
+            veh2 = { spawned = false, x = 3787, y = 8574, type = "firstResponder", key= false, repair = true },
+            veh3 = { spawned = false, x = 3773, y = 8574, type = "firstResponder", key= true, repair = false },
+            item1 = { spawned = false, x = 3808, y = 8555, type = {Rastros.item.oneHandedWeapon, Rastros.item.water}, quantity = 2, inbag = true, bags = 2, separate = true },
+            zomb1 = { spawned = false, x = 3790, y = 8540, type = "firstResponder", quantity = 8 }
         }
         -- -- Guns shop West park
-        Rastros.Data.gunswest = {
+        RastrosModData.gunswest = {
             indx = 3,
             note = { spawned = false, x = 3804, y = 8509 },
-            veh1 = { spawned = false, x = 3794, y = 8496 },
-            veh2 = { spawned = false, x = 3780, y = 8490 },
-            veh3 = { spawned = false, x = 3790, y = 8519 },
-            item1 = { spawned = false, x = 3798, y = 8513 },
-            item2 = { spawned = false, x = 3796, y = 8510 },
-            item3 = { spawned = false, x = 3795, y = 8509 },
-            item4 = { spawned = false, x = 3801, y = 8511 },
-            zomb1 = { spawned = false, x = 3787, y = 8504 }
+            veh1 = { spawned = false, x = 3794, y = 8496, type = "firstResponder", key = true, repair = false },
+            veh2 = { spawned = false, x = 3780, y = 8490, type = "firstResponder", key = false, repair = true },
+            veh3 = { spawned = false, x = 3790, y = 8519, type = "firstResponder", key = false, repair = false },
+            item1 = { spawned = false, x = 3798, y = 8513, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item2 = { spawned = false, x = 3796, y = 8510, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item3 = { spawned = false, x = 3795, y = 8509, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item4 = { spawned = false, x = 3801, y = 8511, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            zomb1 = { spawned = false, x = 3787, y = 8504, type = "firstResponder", quantity = 10 }
         }
         -- -- Ranger House west Doe Valley
-        Rastros.Data.rangerhouse = {
+        RastrosModData.rangerhouse = {
             indx = 4,
             note = { spawned = false, x = 5580, y = 9720 },
-            veh1 = { spawned = false, x = 5586, y = 9738 },
-            veh2 = { spawned = false, x = 5618, y = 9739 },
-            veh3 = { spawned = false, x = 5472, y = 9545 },
-            item1 = { spawned = false, x = 5473, y = 9534 },
-            item2 = { spawned = false, x = 5594, y = 9725 },
-            zomb1 = { spawned = false, x = 5578, y = 9720 },
-            zomb2 = { spawned = false, x = 5578, y = 9724 },
-            zomb3 = { spawned = false, x = 5467, y = 9533 }
+            veh1 = { spawned = false, x = 5586, y = 9738, type = "firstResponder", key= false, repair = true },
+            veh2 = { spawned = false, x = 5618, y = 9739, type = "firstResponder", key= true, repair = true },
+            veh3 = { spawned = false, x = 5472, y = 9545, type = "firstResponder", key= false, repair = false },
+            item1 = { spawned = false, x = 5473, y = 9534, type = {Rastros.item.tool, Rastros.fireArm.oneHanded}, quantity = 2, inbag = true, bags = 1, separate = false },
+            item2 = { spawned = false, x = 5594, y = 9725, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 2, inbag = true, bags = 1, separate = false },
+            zomb1 = { spawned = false, x = 5578, y = 9720 , type = "firstResponder", quantity = 4},
+            zomb2 = { spawned = false, x = 5578, y = 9724 , type = "firstResponder", quantity = 4},
+            zomb3 = { spawned = false, x = 5467, y = 9533, type = "firstResponder", quantity = 4 }
         }
         -- Militar surplus store West Doe valle
-        Rastros.Data.militarsurplus = {
+        RastrosModData.militarsurplus = {
             indx = 5,
             note = { spawned = false, x = 5464, y = 9523 },
-            veh1 = { spawned = false, x = 5416, y = 9546 },
-            veh2 = { spawned = false, x = 5414, y = 9536 },
-            veh3 = { spawned = false, x = 5482, y = 9599 },
-            item1 = { spawned = false, x = 5408, y = 9535 },
-            zomb1 = { spawned = false, x = 5420, y = 9540 }
+            veh1 = { spawned = false, x = 5416, y = 9546, type = "militia", key= true, repair = true },
+            veh2 = { spawned = false, x = 5414, y = 9536, type = "militia", key= false, repair = true },
+            veh3 = { spawned = false, x = 5482, y = 9599, type = "firstResponder", key= true, repair = true },
+            item1 = { spawned = false, x = 5408, y = 9535, type = {Rastros.item.tool, Rastros.fireArm.twoHanded, Rastros.item.twoHandedWeapon, Rastros.item.oneHandedWeapon }, quantity = 3, inbag = true, bags = 2, separate = true },
+            zomb1 = { spawned = false, x = 5420, y = 9540, type = "militia", quantity = 6 }
         }
         -- West Riverside farm
-        Rastros.Data.westriversidefarm = {
+        RastrosModData.westriversidefarm = {
             indx = 6,
             note = { spawned = false, x = 4257, y = 5874 },
-            veh1 = { spawned = false, x = 4248, y = 5861 },
-            item1 = { spawned = false, x = 4257, y = 5875 },
-            zomb1 = { spawned = false, x = 4258, y = 5881 }
+            veh1 = { spawned = false, x = 4248, y = 5861, type = "offRoad", key= false, repair = true },
+            item1 = { spawned = false, x = 4257, y = 5875, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 1, inbag = true, bags = 3, separate = false },
+            zomb1 = { spawned = false, x = 4258, y = 5881, type = "camping", quantity = 3 }
         }
-        
-        Rastros.Data.tittle = "Rastro N. "
-        Rastros.Data.transTitleKey = "IGUI_RASTROSCAIDOS_TITLE_"
-        Rastros.Data.transBodyKey = "IGUI_RASTROSCAIDOS_BODY_"
-        return Rastros.Data
+        -- Nort east Doe Valley Militar Quarters
+        RastrosModData.militarquarters = {
+            indx = 7,
+            note = { spawned = false, x = 7447, y = 7960 },
+            veh1 = { spawned = false, x = 7456, y = 7961, type = "firstResponder", key= false, repair = true },
+            veh2 = { spawned = false, x = 7461, y = 7961, type = "firstResponder", key= false, repair = true },
+            veh3 = { spawned = false, x = 7464, y = 7969, type = "offRoad", key= false, repair = true },
+            veh4 = { spawned = false, x = 7468, y = 7962, type = "offRoad", key= false, repair = true },
+            veh5 = { spawned = false, x = 7464, y = 7953, type = "offRoad", key= false, repair = true },
+            item1 = { spawned = false, x = 7440, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item2 = { spawned = false, x = 7442, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item3 = { spawned = false, x = 7444, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item4 = { spawned = false, x = 7446, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item5 = { spawned = false, x = 7448, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item6 = { spawned = false, x = 7450, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item7 = { spawned = false, x = 7452, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item8 = { spawned = false, x = 7454, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item9 = { spawned = false, x = 7456, y = 7955, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}, quantity = 2, inbag = true, bags = 3, separate = false },
+            item10 = { spawned = false, x = 7435, y = 7958, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item11 = { spawned = false, x = 7437, y = 7962, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item12 = { spawned = false, x = 7442, y = 7959, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item13 = { spawned = false, x = 7451, y = 7963, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item14 = { spawned = false, x = 7451, y = 7959, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item15 = { spawned = false, x = 7456, y = 7961, type = {Rastros.fireArm.twoHanded}, quantity = 1, inbag = false, bags = 0, separate = true },
+            zomb1 = { spawned = false, x = 7429, y = 7950, type = "militia", quantity = 8 },
+            zomb2 = { spawned = false, x = 7429, y = 7967, type = "militia", quantity = 8 },
+            zomb3 = { spawned = false, x = 7445, y = 7976, type = "militia", quantity = 4 },
+            zomb4 = { spawned = false, x = 7459, y = 7974, type = "militia", quantity = 4 },
+            zomb5 = { spawned = false, x = 7461, y = 7949, type = "militia", quantity = 4 },
+            zomb6 = { spawned = false, x = 7445, y = 7940, type = "militia", quantity = 4 },
+            zomb7 = { spawned = false, x = 7430, y = 7942, type = "militia", quantity = 8 }
+        }
+        -- Riverside police station
+        RastrosModData.riversidepolicestation = {
+            indx = 8,
+            note = { spawned = false, x = 6079, y = 5261 },
+            veh1 = { spawned = false, x = 6093, y = 5275, type = "firstResponder", key= false, repair = true },
+            veh2 = { spawned = false, x = 6085, y = 5271, type = "firstResponder", key= false, repair = true },
+            item1 = { spawned = false, x = 6079, y = 5262, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 2, inbag = true, bags = 3, separate = false },
+            zomb1 = { spawned = false, x = 6087, y = 5261, type = "firstResponder", quantity = 10 }
+        }
+        -- Rosewood police station
+        RastrosModData.rosewoodpolicestation = {
+            indx = 8,
+            note = { spawned = false, x = 8071, y = 11727 },
+            veh1 = { spawned = false, x = 8083, y = 11725, type = "firstResponder", key= false, repair = true },
+            item1 = { spawned = false, x = 8072, y = 11727, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 1, inbag = true, bags = 3, separate = false },
+            zomb1 = { spawned = false, x = 8064, y = 11722, type = "firstResponder", quantity = 11 }
+        }
+        -- Knox Militar apartments
+        RastrosModData.knoxapartments = {
+            indx = 7,
+            note = { spawned = false, x = 10079, y = 12629 },
+            veh1 = { spawned = false, x = 10082, y = 12643, type = "firstResponder", key= false, repair = true },
+            item1 = { spawned = false, x = 10080, y = 12639, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 1, inbag = true, bags = 3, separate = false },
+            zomb1 = { spawned = false, x = 10071, y = 12628, type = "militia", quantity = 11 }
+        }
+        -- Muldraugh police station
+        RastrosModData.muldraughpolicestation = {
+            indx = 9,
+            note = { spawned = false, x = 10634, y = 10412 },
+            veh1 = { spawned = false, x = 10646, y = 10418, type = "firstResponder", key= false, repair = true },
+            item1 = { spawned = false, x = 10638, y = 10408, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 1, inbag = true, bags = 3, separate = false },
+            zomb1 = { spawned = false, x = 10634, y = 10402, type = "firstResponder", quantity = 11 }
+        }
+        -- West Point police station
+        RastrosModData.westpointpolicestation = {
+            indx = 8,
+            note = { spawned = false, x = 11900, y = 6949 },
+            veh1 = { spawned = false, x = 11905, y = 6959, type = "firstResponder", key= false, repair = true },
+            veh2 = { spawned = false, x = 11915, y = 6932, type = "firstResponder", key= false, repair = true },
+            item1 = { spawned = false, x = 11906, y = 6952, type = {Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 1, inbag = true, bags = 3, separate = false },
+            zomb1 = { spawned = false, x = 11904, y = 6934, type = "firstResponder", quantity = 11 }
+        }
+        -- trains station south
+        RastrosModData.trainsouth = {
+            indx = 10,
+            note = { spawned = false, x = 11602, y = 10221 },
+            veh1 = { spawned = false, x = 11602, y = 10233, type = "firstResponder", key= false, repair = true },
+            item1 = { spawned = false, x = 11604, y = 10221, type = {Rastros.item.twoHandedWeapon, Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 1, inbag = true, bags = 3, separate = false },
+            item2 = { spawned = false, x = 11608, y = 10230, type = {Rastros.fireArm.twoHanded, Rastros.item.twoHandedWeapon}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item3 = { spawned = false, x = 11606, y = 10225, type = {Rastros.fireArm.twoHanded, Rastros.item.twoHandedWeapon}, quantity = 1, inbag = false, bags = 0, separate = true },
+            zomb1 = { spawned = false, x = 10634, y = 10402, type = "militia", quantity = 11 }
+        }
+        -- trains station west
+        RastrosModData.trainwesth = {
+            indx = 10,
+            note = { spawned = false, x = 11545, y = 9746 },
+            veh1 = { spawned = false, x = 11543, y = 9745, type = "firstResponder", key= false, repair = true },
+            item1 = { spawned = false, x = 11545, y = 9747, type = {Rastros.item.twoHandedWeapon, Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 1, inbag = true, bags = 3, separate = false },
+            item2 = { spawned = false, x = 11545, y = 9744, type = {Rastros.fireArm.twoHanded, Rastros.item.twoHandedWeapon}, quantity = 1, inbag = false, bags = 0, separate = true },
+            item3 = { spawned = false, x = 11547, y = 9749, type = {Rastros.fireArm.twoHanded, Rastros.item.twoHandedWeapon}, quantity = 1, inbag = false, bags = 0, separate = true },
+            zomb1 = { spawned = false, x = 11549, y = 9746, type = "militia", quantity = 11 }
+        }
+        -- trains station center
+        RastrosModData.traincenter = {
+            indx = 11,
+            note = { spawned = false, x = 11709, y = 9931 },
+            veh1 = { spawned = false, x = 11699, y = 9979, type = "civilCar", key= true, repair = false },
+            veh2 = { spawned = false, x = 11682, y = 9979, type = "firstResponder", key= true, repair = false },
+            veh3 = { spawned = false, x = 11669, y = 9979, type = "firstResponder", key= false, repair = true },
+            veh4 = { spawned = false, x = 11708, y = 9965, type = "offRoad", key= true, repair = false },
+            item1 = { spawned = false, x = 11709, y = 9940, type = {Rastros.item.twoHandedWeapon, Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 3, inbag = true, bags = 1, separate = false },
+            item2 = { spawned = false, x = 11709, y = 9932, type = {Rastros.item.twoHandedWeapon, Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 3, inbag = true, bags = 1, separate = false },
+            item3 = { spawned = false, x = 11709, y = 9922, type = {Rastros.item.twoHandedWeapon, Rastros.item.cannedfood, Rastros.item.water, Rastros.item.pharma, Rastros.item.medicalequip}, quantity = 3, inbag = true, bags = 1, separate = false },
+            zomb1 = { spawned = false, x = 11682, y = 9966, type = "militia", quantity = 11 }
+        }
+        -- Army check point
+        RastrosModData.armycheckpoint = {
+            indx = 12,
+            note = { spawned = false, x = 12467, y = 4271 },
+            veh1 = { spawned = false, x = 12472, y = 4258, type = "firstResponder", key= true, repair = false },
+            veh2 = { spawned = false, x = 12474, y = 4291, type = "firstResponder", key= true, repair = false },
+            zomb1 = { spawned = false, x = 12457, y = 4266, type = "militia", quantity = 15 }
+        }
+        -- Pccs
+        RastrosModData.pccs = {
+            indx = 13,
+            note = { spawned = false, x = 15000, y = 3450 },
+            veh1 = { spawned = false, x = 14972, y = 3460, type = "firstResponder", key= true, repair = false },
+            veh2 = { spawned = false, x = 14971, y = 3450, type = "firstResponder", key= true, repair = false },
+            veh3 = { spawned = false, x = 14970, y = 3441, type = "firstResponder", key= true, repair = false },
+            zomb1 = { spawned = false, x = 14973, y = 3461, type = "militia", quantity = 15 },
+            zomb2 = { spawned = false, x = 14972, y = 3452, type = "militia", quantity = 15 },
+            zomb3 = { spawned = false, x = 14974, y = 3460, type = "militia", quantity = 15 },
+            zomb4 = { spawned = false, x = 15002, y = 3450, type = "militia", quantity = 15 }
+        }
+
+        return RastrosModData
     else
-        Rastros.Data = ModData.get("datosRastros")
-        return Rastros.Data
+        RastrosModData = ModData.get("datosRastros")
+        return RastrosModData
     end
 end
 
 Rastros.choice = function(lst)
-    if lst[1] ~= nil then
+    --gen a random so it gets initialiset? avoid same number generate always? do not know whats going on, seems like always return the same number.
+    local _ = ZombRand(100)
+    if lst[1] ~= nil and type(lst) == table then
         local sel = ZombRand(#lst) + 1
         return lst[sel]
     end
     local keys = {}
     for key in pairs(lst) do
+
         table.insert(keys, key)
     end
     local randomKey = keys[ZombRand(#keys) + 1]
@@ -456,9 +586,7 @@ Rastros.spawnItems = function(sq, flag, quantity, items, separate, inbag, bags)
                 sq:AddWorldInventoryItem(newItem, 0.4, 0.5, 0)
             end
         end
-        if flag ~= nil then
-            flag.spawned = true
-        end
+        flag.spawned = true
         return
     end
     if separate then
@@ -512,17 +640,17 @@ Rastros.spawnItems = function(sq, flag, quantity, items, separate, inbag, bags)
                     for q = 1, quantity do
                         if data.box then
                             local boxItem = InventoryItemFactory.CreateItem(data.box)
-                            sq:AddWorldInventoryItem(bag, 0.6, 0.5, 0)
+                            sq:AddWorldInventoryItem(boxItem, 0.6, 0.5, 0)
                         end
                         if data.ammo then
                             for j=1,10 do
                                 local ammoItem = InventoryItemFactory.CreateItem(data.ammo)
-                                sq:AddWorldInventoryItem(bag, 0.9, 0.8, 0)
+                                sq:AddWorldInventoryItem(ammoItem, 0.9, 0.8, 0)
                             end 
                         end
                         if data.magazine then
                             local magazineItem = InventoryItemFactory.CreateItem(data.magazine)
-                            sq:AddWorldInventoryItem(bag, 0.2, 0.1, 0)
+                            sq:AddWorldInventoryItem(magazineItem, 0.2, 0.1, 0)
                         end
                     end
                 end 
@@ -607,12 +735,12 @@ Rastros.spawnItems = function(sq, flag, quantity, items, separate, inbag, bags)
     flag.spawned = true
 end
 
-local spawnSpecialNote = function(sq, data)
+Rastros.spawnSpecialNote = function(sq, data)
     local note = InventoryItemFactory.CreateItem("RASTROSCAIDOS.SpecialNote")
     if note then
-        local nam = Rastros.Data.tittle .. data.indx
-        local ktit = Rastros.Data.transTitleKey .. data.indx
-        local txt = Rastros.Data.transBodyKey .. data.indx
+        local nam = Rastros.tittle .. data.indx
+        local ktit = Rastros.transTitleKey .. data.indx
+        local txt = Rastros.transBodyKey .. data.indx
         local tittle = nam .. " " .. getText(ktit)
         local body = getText(txt)
         note:setName(tittle)
@@ -625,7 +753,7 @@ local spawnSpecialNote = function(sq, data)
     end
 end
 
-Rastros.vehicleSpawn = function (data, sq, type, randomKey, repaired)
+Rastros.vehicleSpawn = function (data, sq, type, randomKey, repair)
     if sq then
         local vehicle = addVehicleDebug(type, IsoDirections.getRandom(), nil, sq)
         local carKey = vehicle:createVehicleKey()
@@ -636,7 +764,7 @@ Rastros.vehicleSpawn = function (data, sq, type, randomKey, repaired)
                 vehicle:putKeyToWorld(sq)
             end
         end
-        if repaired then
+        if repair then
             vehicle:repair()
             local cond = (20 + ZombRand(8)) / 10
             vehicle:setGeneralPartCondition(cond, 80)
@@ -654,451 +782,89 @@ Rastros.vehicleSpawn = function (data, sq, type, randomKey, repaired)
 end
 
 Rastros.spawnZombies = function(x, y , outfits, quantity, minHealt, maxHealt, data)
-    local outfit = nil
-    if type(outfits) == "string" then
-        outfit = outfits
-    else
-        outfit = Rastros.choice(outfits)
-    end
     local femaleChance = nil
-    for i=1,quantity do
-        
-        if Rastros.maleOutfits:contains(outfit) and not Rastros.femaleOutfits:contains(outfit) then
-            femaleChance = 0;
+    if type(outfits) == "string" then
+        for i=1,quantity do
+            if Rastros.maleOutfits:contains(outfits) and not Rastros.femaleOutfits:contains(outfits) then
+                femaleChance = 0;
+            end
+            if Rastros.femaleOutfits:contains(outfits) and not Rastros.maleOutfits:contains(outfits) then
+                femaleChance = 100;
+            end
+            local healtSel = Rastros.choice({minHealt, maxHealt})
+            addZombiesInOutfit(x+2, y+2, 0, 1, outfits, femaleChance, false, true, false, false, healtSel)
         end
-        if Rastros.femaleOutfits:contains(outfit) and not Rastros.maleOutfits:contains(outfit) then
-            femaleChance = 100;
+        data.spawned = true
+        return
+    else
+        for i=1, quantity do
+            local outfit = outfit or Rastros.choice(outfits)
+            if Rastros.maleOutfits:contains(outfit) and not Rastros.femaleOutfits:contains(outfit) then
+                femaleChance = 0;
+            end
+            if Rastros.femaleOutfits:contains(outfit) and not Rastros.maleOutfits:contains(outfit) then
+                femaleChance = 100;
+            end
+            local healtSel = Rastros.choice({minHealt, maxHealt})
+            addZombiesInOutfit(x, y, 0, 1, outfit, femaleChance, false, false, false, false, healtSel)
         end
-        local healtSel = Rastros.choice({minHealt, maxHealt})
-        addZombiesInOutfit(x+2, y+2, 0, 1, outfit, femaleChance, false, true, false, false, healtSel)
+        data.spawned = true
     end
-    data.spawned = true
 end
 
-local onLoadGridSquare = function(sq)
+Rastros.indexSpawnPoints = function()
+    for locName, locData in pairs(RastrosModData) do
+        if type(locData) == "table" then
+            for key, spawn in pairs(locData) do
+                if key ~= "indx" and type(spawn) == "table" and spawn.x and spawn.y then
+                    local coordKey = spawn.x .. "_" .. spawn.y
+                    spawnIndex[coordKey] = { location = locData, key = key }
+                end
+            end
+        end
+    end
+    indexedCoords = true
+end
 
-    if not Rastros.Data.deerhead then return end
+Rastros.onLoadGridSquare = function(sq)
+
+    if not RastrosModData.deerhead then return end
+    if not indexedCoords then Rastros.indexSpawnPoints() end
     local x, y = sq:getX(), sq:getY()
+    local coordKey = x .. "_" .. y
+    local entry = spawnIndex[coordKey]
+    if not entry then 
+        return 
+    end
 
-    -- # 1 --- Deerhead lake park Ranger station
-    if Rastros.Data.deerhead.note.spawned == false then
-        if x == Rastros.Data.deerhead.note.x and y == Rastros.Data.deerhead.note.y then
-            spawnSpecialNote(sq, Rastros.Data.deerhead)
-            return
-        end
+    local locData = entry.location
+    local spawnData = locData[entry.key]
+    if spawnData.spawned then
+        return
     end
-    if Rastros.Data.deerhead.zomb1.spawned == false then
-        if x == Rastros.Data.deerhead.zomb1.x and y == Rastros.Data.deerhead.zomb1.y then
-            Rastros.spawnZombies(x, y, Rastros.outfits.firstResponder, 6, 40, 80, Rastros.Data.deerhead.zomb1)
-            return
-        end
-    end
-    if Rastros.Data.deerhead.item1.spawned == false then
-        if x == Rastros.Data.deerhead.item1.x and y == Rastros.Data.deerhead.item1.y then
-            local itemlst = {Rastros.item.tool, Rastros.fireArm.oneHanded}
-            Rastros.spawnItems(sq, Rastros.Data.deerhead.item1, 3, itemlst, false, true, 3)
-            return
-        end
-    end
-    if Rastros.Data.deerhead.veh1.spawned == false then
-        if x == Rastros.Data.deerhead.veh1.x and y == Rastros.Data.deerhead.veh1.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.deerhead.veh1, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.deerhead.veh2.spawned == false then
-        if x == Rastros.Data.deerhead.veh2.x and y == Rastros.Data.deerhead.veh2.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.offRoad)
-            Rastros.vehicleSpawn(Rastros.Data.deerhead.veh2, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.deerhead.veh3.spawned == false then
-        if x == Rastros.Data.deerhead.veh3.x and y == Rastros.Data.deerhead.veh3.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.deerhead.veh3, sq, carTypeSel)
-            return
-        end
-    end
-    -- --- 
 
-    -- # 2 --- Camping store west park
-    if Rastros.Data.campingwest.note.spawned == false then
-        if x == Rastros.Data.campingwest.note.x and y == Rastros.Data.campingwest.note.y then
-            spawnSpecialNote(sq, Rastros.Data.campingwest)
-            return
-        end
+    if entry.key == "note" then
+        Rastros.spawnSpecialNote(sq, locData)
+    elseif entry.key:find("veh") then
+        local carlst = Rastros.cars[spawnData.type]
+        local carTypeSel = Rastros.choice(carlst)
+        Rastros.vehicleSpawn(spawnData, sq, carTypeSel)
+        spawnData.spawned = true
+    elseif entry.key:find("item") then
+        local itemlst = spawnData.type
+        Rastros.spawnItems(sq, spawnData, spawnData.quantity, itemlst, spawnData.separate, spawnData.inbag, spawnData.bags)
+        spawnData.spawned = true
+    elseif entry.key:find("zomb") then
+        local outfits = Rastros.outfits[spawnData.type]
+        Rastros.spawnZombies(x, y, outfits, spawnData.quantity, 40, 80, spawnData)
+        spawnData.spawned = true
     end
-    if Rastros.Data.campingwest.zomb1.spawned == false then
-        if x == Rastros.Data.campingwest.zomb1.x and y == Rastros.Data.campingwest.zomb1.y then
-            Rastros.spawnZombies(x, y, Rastros.outfits.firstResponder, 8, 40, 80, Rastros.Data.campingwest.zomb1 )
-            return
-        end
-    end
-    if Rastros.Data.campingwest.veh1.spawned == false then
-        if x == Rastros.Data.campingwest.veh1.x and y == Rastros.Data.campingwest.veh1.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.offRoad)
-            Rastros.vehicleSpawn(Rastros.Data.campingwest.veh1, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.campingwest.veh2.spawned == false then
-        if x == Rastros.Data.campingwest.veh2.x and y == Rastros.Data.campingwest.veh2.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.campingwest.veh2, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.campingwest.veh3.spawned == false then
-        if x == Rastros.Data.campingwest.veh3.x and y == Rastros.Data.campingwest.veh3.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.campingwest.veh3, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.campingwest.item1.spawned == false then
-        if x == Rastros.Data.campingwest.item1.x and y == Rastros.Data.campingwest.item1.y then
-            local itemlst = {Rastros.item.oneHandedWeapon, Rastros.fireArm.oneHanded}
-            Rastros.spawnItems(sq, Rastros.Data.campingwest.item1, 2, itemlst, false, true, 1)
-            return
-        end
-    end
-    -- -- ---
-
-    -- -- # 3 --- Gun store west park Rastros.Data.gunswest
-    if Rastros.Data.gunswest.note.spawned == false then
-        if x == Rastros.Data.gunswest.note.x and y == Rastros.Data.gunswest.note.y then
-            spawnSpecialNote(sq, Rastros.Data.gunswest)
-            return
-        end
-    end
-    if Rastros.Data.gunswest.zomb1.spawned == false then
-        if x == Rastros.Data.gunswest.zomb1.x and y == Rastros.Data.gunswest.zomb1.y then
-            Rastros.spawnZombies(x, y, Rastros.outfits.firstResponder, 8, 40, 80, Rastros.Data.gunswest.zomb1 )
-            return
-        end
-    end
-    if Rastros.Data.gunswest.veh1.spawned == false then
-        if x == Rastros.Data.gunswest.veh1.x and y == Rastros.Data.gunswest.veh1.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.gunswest.veh1, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.gunswest.veh2.spawned == false then
-        if x == Rastros.Data.gunswest.veh2.x and y == Rastros.Data.gunswest.veh2.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.gunswest.veh2, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.gunswest.veh3.spawned == false then
-        if x == Rastros.Data.gunswest.veh3.x and y == Rastros.Data.gunswest.veh3.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.gunswest.veh3, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.gunswest.item1.spawned == false then
-        if x == Rastros.Data.gunswest.item1.x and y == Rastros.Data.gunswest.item1.y then
-            local itemlst = {Rastros.fireArm.oneHanded, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}
-            Rastros.spawnItems(sq, Rastros.Data.gunswest.item1, 1, itemlst, true, false)
-            return
-        end
-    end
-    if Rastros.Data.gunswest.item2.spawned == false then
-        if x == Rastros.Data.gunswest.item2.x and y == Rastros.Data.gunswest.item2.y then
-            local itemlst = {Rastros.fireArm.oneHanded, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}
-            Rastros.spawnItems(sq, Rastros.Data.gunswest.item2, 1, itemlst, true, false)
-            return
-        end
-    end
-    if Rastros.Data.gunswest.item3.spawned == false then
-        if x == Rastros.Data.gunswest.item3.x and y == Rastros.Data.gunswest.item3.y then
-            local itemlst = {Rastros.fireArm.oneHanded, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}
-            Rastros.spawnItems(sq, Rastros.Data.gunswest.item3, 1, itemlst, true, false)
-            return
-        end
-    end
-    if Rastros.Data.gunswest.item4.spawned == false then
-        if x == Rastros.Data.gunswest.item4.x and y == Rastros.Data.gunswest.item4.y then
-            local itemlst = {Rastros.fireArm.oneHanded, Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}
-            Rastros.spawnItems(sq, Rastros.Data.gunswest.item4, 1, itemlst, true, false)
-            return
-        end
-    end
-    -- ---
-    
-    -- # 4 --- Ranger house Doe valley
-    if Rastros.Data.rangerhouse.note.spawned == false then
-        if x == Rastros.Data.rangerhouse.note.x and y == Rastros.Data.rangerhouse.note.y then
-            spawnSpecialNote(sq, Rastros.Data.rangerhouse)
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.zomb1.spawned == false then
-        if x == Rastros.Data.rangerhouse.zomb1.x and y == Rastros.Data.rangerhouse.zomb1.y then
-            Rastros.spawnZombies(x, y, "Ranger", 2, 40, 80, Rastros.Data.rangerhouse.zomb1 )
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.zomb2.spawned == false then
-        if x == Rastros.Data.rangerhouse.zomb2.x and y == Rastros.Data.rangerhouse.zomb2.y then
-            Rastros.spawnZombies(x, y, "Ranger", 2, 40, 80, Rastros.Data.rangerhouse.zomb2 )
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.zomb3.spawned == false then
-        if x == Rastros.Data.rangerhouse.zomb3.x and y == Rastros.Data.rangerhouse.zomb3.y then
-            Rastros.spawnZombies(x, y, Rastros.outfits.firstResponder, 10, 40, 80, Rastros.Data.rangerhouse.zomb3 )
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.veh1.spawned == false then
-        if x == Rastros.Data.rangerhouse.veh1.x and y == Rastros.Data.rangerhouse.veh1.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.offRoad)
-            Rastros.vehicleSpawn(Rastros.Data.rangerhouse.veh1, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.veh2.spawned == false then
-        if x == Rastros.Data.rangerhouse.veh2.x and y == Rastros.Data.rangerhouse.veh2.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.rangerhouse.veh2, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.veh3.spawned == false then
-        if x == Rastros.Data.rangerhouse.veh3.x and y == Rastros.Data.rangerhouse.veh3.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.rangerhouse.veh3, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.item1.spawned == false then
-        if x == Rastros.Data.rangerhouse.item1.x and y == Rastros.Data.rangerhouse.item1.y then
-            local itemlst = {Rastros.item.bandages, Rastros.item.pharma, Rastros.item.medicalequip}
-            Rastros.spawnItems(sq, Rastros.Data.rangerhouse.item1, 2, itemlst, false, true, 1)
-            return
-        end
-    end
-    if Rastros.Data.rangerhouse.item2.spawned == false then
-        if x == Rastros.Data.rangerhouse.item2.x and y == Rastros.Data.rangerhouse.item2.y then
-            local itemlst = {Rastros.fireArm.twoHanded, Rastros.item.oneHandedWeapon}
-            Rastros.spawnItems(sq, Rastros.Data.rangerhouse.item2, 2, itemlst, false, true, 1)
-            return
-        end
-    end
-    -- -- ---
-
-    -- # 5 --- Militar surplus store West Doe valle
-    if Rastros.Data.militarsurplus.note.spawned == false then
-        if x == Rastros.Data.militarsurplus.note.x and y == Rastros.Data.militarsurplus.note.y then
-            spawnSpecialNote(sq, Rastros.Data.militarsurplus)
-            return
-        end
-    end
-    if Rastros.Data.militarsurplus.zomb1.spawned == false then
-        if x == Rastros.Data.militarsurplus.zomb1.x and y == Rastros.Data.militarsurplus.zomb1.y then
-            Rastros.spawnZombies(x, y, Rastros.outfits.firstResponder, 6, 40, 80, Rastros.Data.militarsurplus.zomb1)
-            return
-        end
-    end
-    if Rastros.Data.militarsurplus.item1.spawned == false then
-        if x == Rastros.Data.militarsurplus.item1.x and y == Rastros.Data.militarsurplus.item1.y then
-            local itemlst = {Rastros.item.tool, Rastros.fireArm.oneHanded}
-            Rastros.spawnItems(sq, Rastros.Data.militarsurplus.item1, 3, itemlst, false, true, 3)
-            return
-        end
-    end
-    if Rastros.Data.militarsurplus.veh1.spawned == false then
-        if x == Rastros.Data.militarsurplus.veh1.x and y == Rastros.Data.militarsurplus.veh1.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.militarsurplus.veh1, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.militarsurplus.veh2.spawned == false then
-        if x == Rastros.Data.militarsurplus.veh2.x and y == Rastros.Data.militarsurplus.veh2.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.offRoad)
-            Rastros.vehicleSpawn(Rastros.Data.militarsurplus.veh2, sq, carTypeSel)
-            return
-        end
-    end
-    if Rastros.Data.militarsurplus.veh3.spawned == false then
-        if x == Rastros.Data.militarsurplus.veh3.x and y == Rastros.Data.militarsurplus.veh3.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.firstResponder)
-            Rastros.vehicleSpawn(Rastros.Data.militarsurplus.veh3, sq, carTypeSel)
-            return
-        end
-    end
-    -- ---
-        
-    -- # 6 --- West Riverside farm
-    if Rastros.Data.westriversidefarm.note.spawned == false then
-        if x == Rastros.Data.westriversidefarm.note.x and y == Rastros.Data.westriversidefarm.note.y then
-            spawnSpecialNote(sq, Rastros.Data.westriversidefarm)
-            return
-        end
-    end
-    if Rastros.Data.westriversidefarm.zomb1.spawned == false then
-        if x == Rastros.Data.westriversidefarm.zomb1.x and y == Rastros.Data.westriversidefarm.zomb1.y then
-            Rastros.spawnZombies(x, y, Rastros.outfits.camping, 2, 40, 80, Rastros.Data.westriversidefarm.zomb1)
-            return
-        end
-    end
-    if Rastros.Data.westriversidefarm.item1.spawned == false then
-        if x == Rastros.Data.westriversidefarm.item1.x and y == Rastros.Data.westriversidefarm.item1.y then
-            local itemlst = {Rastros.item.water, Rastros.item.cannedfood}
-            Rastros.spawnItems(sq, Rastros.Data.westriversidefarm.item1, 3, itemlst, false, true, 1)
-            return
-        end
-    end
-    if Rastros.Data.westriversidefarm.veh1.spawned == false then
-        if x == Rastros.Data.westriversidefarm.veh1.x and y == Rastros.Data.westriversidefarm.veh1.y then
-            local carTypeSel= Rastros.choice(Rastros.cars.offRoad)
-            Rastros.vehicleSpawn(Rastros.Data.westriversidefarm.veh1, sq, carTypeSel, false, false)
-            return
-        end
-    end
-    -- ---
+    return
 end
 
-local initData = function()
-    Rastros.Data = getModData()
+Rastros.initData = function()
+    RastrosModData = Rastros.getModData()
 end
 
--- function CloneIsoPlayer(originalCharacter)
---     -- Create a new temporary IsoPlayer at the same position as the original player
---     local tempPlayer = IsoPlayer.new(nil, nil, originalCharacter:getX(), originalCharacter:getY(), originalCharacter:getZ())
---     -- Copy relevant properties from the original player to the temporary player
---     -- tempPlayer:setForname(originalCharacter:getForname())
---     -- tempPlayer:setSurname(originalCharacter:getSurname())
---     tempPlayer:setGhostMode(true) -- Ensure the temp player is not interactable
---     tempPlayer:setGodMod(true)    -- Ensure the temp player cannot die
---     tempPlayer:setPrimaryHandItem(originalCharacter:getPrimaryHandItem())
---     tempPlayer:setSecondaryHandItem(originalCharacter:getSecondaryHandItem())
---     tempPlayer:setSceneCulled(false)
---     tempPlayer:setNPC(true)
-
---     -- You can copy more properties as needed, depending on what you need for the Hit function
-
---     return tempPlayer
--- end
-
--- public static IsoDeadBody createRandomDeadBody(IsoGridSquare square,
--- IsoDirections directions,
--- int int1,
--- int int2,
--- java.lang.String string)
-
--- Rastros.onCreatePlayer = function()
---     -- local spawnX, spawnY, spawnZ = 4171, 7840, 0
---     -- local p = getPlayer()
---     -- print("player creation")
---     -- p:setPosition(spawnX, spawnY, 0)
---     print("server ----- onCreatePlayer")
---     local p = getPlayer()
---     local gen = p:isFemale() and "_F" or "_M"
---     local txKey = "IGUI_RASTROSCAIDOS_ALIVE" .. gen
---     local tx = getText(txKey)
---     print(tx)
---     if tx and tx ~= "" then
---         p:Say(tx)
---     else
---         print("Error: Traducción no encontrada para la clave: " .. txKey)
---     end
--- end
-
--- function OnTick()
---     -- if isClient() then return end
---     for playerIndex=0, getNumActivePlayers()-1 do
---         local player = getSpecificPlayer(playerIndex);
---         if player and not player:isDead() then
---             CheckPlayerVehicle(player);
---         end
---     end
--- end
-
--- function CheckPlayerVehicle(player)
---     local vehicle = player.getVehicle and player:getVehicle() or nil
---     if vehicle == nil or not vehicle:isDriver(player) then return end
-
---     local partCount = vehicle:getPartCount();
---     for i=0, partCount-1 do
---         local part = vehicle:getPartByIndex(i);
---         local partHP = part:getCondition();
-        
---         if (partHP < 100) then
---             part:setCondition(100);
---             partHP = part:getCondition();
---             print(part:getId() .. " current hp " .. partHP);
---         end
---     end
--- end
-
--- Events.OnTick.Add(OnTick);
-
-
--- Rastros.serverStats = function()
---     local players = getOnlinePlayers()
---     local zombieCount = getTotalZombies()
---     local rd = Rastros.getModData()
-
---     -- Crear el contenido del archivo en texto plano
---     local data = "Players: " .. #players ..
---                  "\nZombies: " .. zombieCount ..
---                  "\nTime: " .. getGameTime():getWorldAgeHours() ..
---                  "\nDeaths: " .. (rd.deathCount or 0) .. "\n"
-
---     print("Trying to create file serverStats.txt")
-
---     -- Usar la API de archivos de Project Zomboid
---     local file = getFileWriter(rd.MOD_ID ,"serverStats.txt", true, false) 
---     if file then
---         file:write(data) -- Escribir los datos en el archivo
---         file:close() -- Cerrar el archivo
---         print("File serverStats.txt created successfully")
---     else
---         print("Error: Could not create file serverStats.txt")
---     end
--- end
-
--- Rastros.serverStats = function()
---     local players = getOnlinePlayers()
---     local zombieCount = getTotalZombies()
---     local rd = Rastros.getModData()
---     local currentTime = getGameTime():getWorldAgeHours()
-
---     print("Trying to create file serverStats.txt")
-
---     -- Abrir el archivo para escritura usando getModFileWriter:
---     local file = getModFileWriter(rd.MOD_ID, "serverStats.txt", true, false)
---     if file then
---         file:write("Players: " .. #players .. "\r\n")
---         file:write("Zombies: " .. zombieCount .. "\r\n")
---         file:write("Time: " .. currentTime .. "\r\n")
---         file:write("Deaths: " .. (rd.deathCount or 0) .. "\r\n")
---         file:close()
---         print("File serverStats.txt created successfully")
---     else
---         print("Error: Could not create file serverStats.txt")
---     end
--- end
-
--- public static void disconnectPlayer(IsoPlayer player, UdpConnection connection)
-
--- void kick(UdpConnection connection,String description,String reason)
-
--- static UdpConnection getConnectionFromPlayer(IsoPlayer player)
-
--- SpawnOrigin(int int1, int int2, int int3, int int4)
-
---Events.OnServerStart.Add(onServerStart)
--- Events.OnGameBoot.Add(Rastros.setSpawn)
-Events.OnGameStart.Add(initData)
--- Events.OnGameStart.Add(onCreatePlayer)
-Events.LoadGridsquare.Add(onLoadGridSquare)
--- Events.OnConnected.Add(serverStats)
--- Events.OnDisconnect.Add(serverStats)
+Events.OnGameStart.Add(Rastros.initData)
+Events.LoadGridsquare.Add(Rastros.onLoadGridSquare)
